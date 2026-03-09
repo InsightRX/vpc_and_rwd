@@ -18,13 +18,21 @@ sim_1 <- readRDS("data/case1_sim.rds")
 obs_2 <- readRDS("data/case2_obs.rds")
 sim_2 <- readRDS("data/case2_sim.rds")
 
-
 # case 3
-obs_3 <- readRDS("data/case3_obs.rds") |>
+obs_3 <- readRDS("data/case3_obs.rds")
+sim_3 <- readRDS("data/case3_sim.rds")
+
+
+# case 2b
+obs_2b <- readRDS("data/case2b_obs.rds") |>
   rename(id = ID, pred = preds)
-sim_3 <- readRDS("data/case3_sim.rds") |>
+sim_2b <- readRDS("data/case2b_sim.rds") |>
   rename(id = ID, pred = preds)
-sim_3c <- readRDS("data/case3_sim_censor.rds") |>
+sim_2bc <- readRDS("data/case2b_sim_censor.rds") |>
+  rename(id = ID, pred = preds)
+obs_2bf <- readRDS("data/case2b_obs_full.rds") |>
+  rename(id = ID, pred = preds)
+sim_2bf <- readRDS("data/case2b_sim_full.rds") |>
   rename(id = ID, pred = preds)
 
 # plotting convenience function ------------------------------------------------
@@ -57,34 +65,86 @@ plot_vpc <- function(obs, sim, pc, idv) {
     scale_y_log10() 
 }
 
-
-p0a <- plot_vpc(obs_0, sim_0, FALSE, "t") +
+# figure 1 ---------------------------------------------------------------------
+p0a <- plot_vpc(obs_0, sim_0[sim_0$t < 120,], FALSE, "t") +
   labs(tag = "(a)", title = "Case 0, VPC")
-p0b <- plot_vpc(obs_0, sim_0, TRUE, "t") +
+p0b <- plot_vpc(obs_0, sim_0[sim_0$t < 120,], TRUE, "t") +
   labs(tag = "(b)", title = "Case 0, pcVPC")
-p1a <- plot_vpc(obs_1, sim_1, FALSE, "t") +
+p1a <- plot_vpc(obs_1, sim_1[sim_1$t < 216,], FALSE, "t") +
   labs(tag = "(c)", title = "Case 1, VPC")
-p1b <- plot_vpc(obs_1, sim_1, TRUE, "t") +
+p1b <- plot_vpc(obs_1, sim_1[sim_1$t < 216,], TRUE, "t") +
   labs(tag = "(d)", title = "Case 1, pcVPC")
-p2a <- plot_vpc(obs_2, sim_2, FALSE, "t") +
+p2a <- plot_vpc(obs_2, sim_2[sim_2$t < 120,], FALSE, "t") +
   labs(tag = "(e)", title = "Case 2, VPC")
-p2b <- plot_vpc(obs_2, sim_2, TRUE, "t") +
+p2b <- plot_vpc(obs_2, sim_2[sim_2$t < 120,], TRUE, "t") +
   labs(tag = "(f)", title = "Case 2, pcVPC")
-p3a <- plot_vpc(obs_3, sim_3, FALSE, "TAD") +
-  labs(y = "MTX (µmol/L.hr)", tag = "(g)", title = "Case 3, VPC")
-p3b <- plot_vpc(obs_3, sim_3, TRUE, "TAD") +
-  labs(y = "MTX (µmol/L.hr)", tag = "(h)", title = "Case 3, pcVPC")
-p3c <- plot_vpc(obs_3, sim_3c, FALSE, "TAD") +
-  labs(
-    y = "MTX (µmol/L.hr)", tag = "(i)", title = "Case 3, VPC, dropout model"
-  )
+p3a <- plot_vpc(obs_3, sim_3, FALSE, "t") +
+  labs(tag = "(g)", title = "Case 3, VPC")
+p3b <- plot_vpc(obs_3, sim_3, TRUE, "t") +
+  labs(tag = "(h)", title = "Case 3, pcVPC")
 
-
-r02 <- p0a + p0b + p1a + p1b + p2a + p2b + 
+p0a + p0b + p1a + p1b + p2a + p2b + p3a + p3b +
   plot_layout(axes = "collect_x", ncol = 2)
-r3 <- p3a + p3b + p3c + plot_layout(axes = "collect_x")
-
-r02 / r3 + plot_layout(heights = c(3, 1)) &
-  theme(plot.title = element_text(size = 10))
   
 ggsave("figures/all_plots.png", scale = 1.5, width = 6, height = 7)
+
+# supplemental figures ---------------------------------------------------------
+# methotrexate case study
+p2ba <- plot_vpc(obs_2bf, sim_2bf, FALSE, "TAD") +
+  labs(
+    y = "MTX (µmol/L.hr)", tag = "(a)", title = "Case 2b, VPC, no censoring"
+  )
+p2bb <- plot_vpc(obs_2bf, sim_2bf, TRUE, "TAD") +
+  labs(
+    y = "MTX (µmol/L.hr)", tag = "(b)", title = "Case 2b, pcVPC, no censoring"
+  )
+p2bc <- plot_vpc(obs_2b, sim_2b, FALSE, "TAD") +
+  labs(y = "MTX (µmol/L.hr)", tag = "(c)", title = "Case 2b, VPC")
+p2bd <- plot_vpc(obs_2b, sim_2b, TRUE, "TAD") +
+  labs(y = "MTX (µmol/L.hr)", tag = "(d)", title = "Case 2b, pcVPC")
+p2be <- plot_vpc(obs_2b, sim_2bc, FALSE, "TAD") +
+  labs(
+    y = "MTX (µmol/L.hr)", tag = "(e)", title = "Case 2b, VPC, dropout model"
+  )
+p2bf <- plot_vpc(obs_2b, sim_2bc, TRUE, "TAD") +
+  labs(
+    y = "MTX (µmol/L.hr)", tag = "(f)", title = "Case 2b, pcVPC, dropout model"
+  )
+
+p2ba + p2bb + p2bc + p2bd + p2be + p2bf +
+  plot_layout(axes = "collect_x", ncol = 2)
+ggsave(
+  "figures/case2b.png", 
+  scale = 1.5, width = 6, height = 6
+)
+
+# Case 0X: VPCs for Case 0 with dose rounding applied --------------------------
+obs_0X <- readRDS("data/case0X_obs.rds")
+sim_0X <- readRDS("data/case0X_sim.rds")
+p0Xa <- plot_vpc(obs_0X, sim_0X[sim_0X$t < 120,], FALSE, "t") +
+  labs(tag = "(a)", title = "Case 0, VPC")
+p0Xb <- plot_vpc(obs_0X, sim_0X[sim_0X$t < 120,], TRUE, "t") +
+  labs(tag = "(b)", title = "Case 0, pcVPC")
+p0Xa + p0Xb
+ggsave("figures/case0X.png", scale = 1.5, width = 6, height = 2.5)
+
+# Case 1X: VPCs for Case 1 simulated with different seeds ----------------------
+folds <- readRDS("data/case1X.rds")
+plot_fold_n <- function(fold, pc) {
+  title_string <- paste0(
+    "Case 1, ", ifelse(pc, "pc", ""), "VPC, Seed = ", fold
+  )
+  plot_vpc(
+    folds[[fold]]$obs, 
+    folds[[fold]]$sim[folds[[fold]]$sim$t < 216,], 
+    pc, "t"
+  ) +
+    labs(title = title_string)
+}
+case1_plots <- c(
+  lapply(1:10, plot_fold_n, FALSE), # VPC
+  lapply(1:10, plot_fold_n, TRUE)   # pcVPC
+)
+p_case1X  <- wrap_plots(case1_plots, ncol = 4, byrow = FALSE)
+
+ggsave("figures/case1X.png", scale = 2, width = 6, height = 7)
