@@ -31,7 +31,7 @@ sample frequency varies in response to measured drug concentrations.
 knitr::include_graphics("figures/all_plots.png")
 ```
 
-![](figures/all_plots.png)<!-- -->
+<img src="figures/all_plots.png" width="2700" />
 
 This figure shows a comparison of visual predictive check (VPC) and
 prediction-corrected VPC (pcVPC) for each considered case. Case 0:
@@ -39,10 +39,9 @@ adaptive dosing with dose quantity adjustment, (a) VPC and (b) pcVPC.
 Case 1: adaptive dosing with dose interval adjustment, (c) VPC and (d)
 pcVPC. Case 2: adaptive dosing with dropout based identification of a
 suitable maintenance dose, (e) VPC and (f) pcVPC. Case 3: Sampling
-strategy varying based on measured values, (g) VPC, (h) pcVPC, (i) VPC
-with censoring model applied to simulated data. Points indicate
-individual observations. Solid black lines (dashed black lines) indicate
-the median (5th and 95th percentile) of the observed data. Dark blue
-(light blue) shaded regions indicate the 95% confidence interval for the
-predicted median (5th and 95th percentile) based on simulation. MTX:
-methotrexate.
+strategy varying based on estimated clearance, (g) VPC, (h) pcVPC.
+Points indicate individual observations. Solid black lines (dashed black
+lines) indicate the median (5th and 95th percentile) of the observed
+data. Dark blue (light blue) shaded regions indicate the 95% confidence
+interval for the predicted median (5th and 95th percentile) based on
+simulation.
